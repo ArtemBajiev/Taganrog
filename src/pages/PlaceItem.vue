@@ -258,7 +258,7 @@ const markerOptions = ref({ position: center, label: 'L', title: 'LADY LIBERTY' 
   }
 }
 .place-item__description {
-  text-align: start;
+  text-align:justify;
   font-size: clamp(14px, 2vw, 35px);
 }
 .place-item__address {
