@@ -1,5 +1,12 @@
 <template>
-  <li class="place-card">
+  <li
+    class="place-card"
+    v-if="
+      (props.name != 'null' &&
+        (store.userData.admin == 0 || Object.keys(store.userData).length == 0)) ||
+      store.userData.admin == 1
+    "
+  >
     <div class="place-card__is-favorite" v-if="store.isAuth">
       <transition name="opacity" mode="out-in">
         <Icon
@@ -77,7 +84,7 @@ isFavoriteD.value = props.isFavorite
   height: 268px;
   border-radius: 10px;
 
-  background-size: auto 100%;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   margin-bottom: 0px;
   position: relative;

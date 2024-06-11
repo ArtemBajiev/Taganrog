@@ -13,6 +13,14 @@
         <label for=""
           >Название<input required v-model="dataPlace.name" type="text" class="form-control"
         /></label>
+        <p>Загруженные изображения</p>
+        <ul class="place-item-admin__loadedImage">
+          <li class="m-2" v-for="item in parseImage" :key="item.id">
+            <button @click="deliteImage(item)" class="btn btn-close"></button>
+            <img width="100px" :src="store.URL + item" alt="" />
+          </li>
+        </ul>
+        <p>Добавить изображения</p>
         <ul class="place-item-admin__loadImage">
           <li v-for="(item, index) in filesImage" :key="item">
             <loadImage
@@ -62,40 +70,60 @@
 </template>
 
 <script lang="js" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import loadImage from '@/components/loadImage.vue'
 import places from '@/setup/places'
 import { useRoute } from 'vue-router'
 import feedback from '@/setup/feedback'
 import Textarea from 'primevue/textarea'
 import ReviewItem from '@/components/ReviewItem.vue'
+import { useStore } from '@/stores/store'
+import { useToast } from 'vue-toastification'
+const toast = useToast()
+const store = useStore()
 const filesImage = ref([''])
 const types = ref([])
 const route = useRoute()
 const dataPlace = ref({})
 const feedbackData = ref([])
-const { getType, placeCreate, getPlace, placeEdit, addImage } = places()
+const { getType, placeCreate, getPlace, placeEdit, addImage, delImage } = places()
 const { getFeedback, delFeedback } = feedback()
 
+function deliteImage(file) {
+  delImage(file, route.params.id).then(() => {
+    getData()
+    toast.success('Картинка удалёна')
+  })
+}
 function deliteFeed(id) {
   if (confirm('Удалить комментарий?')) {
     delFeedback(id).then(() => {
       feedbacks()
+      toast.success('Комментарий удалён')
     })
   }
 }
-
+const parseImage = computed(() => {
+  if (dataPlace.value.image) {
+    return JSON.parse(dataPlace.value.image)
+  } else {
+    return []
+  }
+})
 function feedbacks() {
   getFeedback(route.params.id).then((res) => {
     feedbackData.value = res.data.feedbacks.reverse()
   })
 }
 feedbacks()
-if (route.params.id != 'new') {
-  getPlace(route.params.id).then((res) => {
-    dataPlace.value = res.data.place
-  })
+function getData() {
+  if (route.params.id != 'new') {
+    getPlace(route.params.id).then((res) => {
+      dataPlace.value = res.data.place
+    })
+  }
 }
+getData()
 function onUpload(file) {
   filesImage.value.unshift(file)
 }
@@ -110,9 +138,12 @@ getType().then((res) => {
 function addImageFunc() {
   filesImage.value.forEach((element) => {
     if (element != '') {
-      addImage(element, route.params.id).then(() => {})
+      addImage(element, route.params.id).then(() => {
+        getData()
+        toast.success('Картинка добавлена')
+      })
     } else {
-      // location.reload()
+      getData()
     }
   })
 }
@@ -127,6 +158,7 @@ function save() {
       dataPlace.value.type_id,
       route.params.id
     ).then(() => {
+      toast.success('Изменения сохранены')
       addImageFunc()
     })
   } else {
@@ -138,6 +170,7 @@ function save() {
       dataPlace.value.location_address,
       dataPlace.value.type_id
     ).then(() => {
+      toast.success('Место добавлено')
       addImageFunc()
     })
   }
@@ -184,5 +217,18 @@ form {
   margin-top: 20px;
 }
 .admin-review {
+}
+.place-item-admin__loadedImage {
+  display: flex;
+  flex-wrap: wrap;
+  li {
+    position: relative;
+    button {
+      position: absolute;
+      right: 5px;
+      top: 0;
+      background-color: red;
+    }
+  }
 }
 </style>

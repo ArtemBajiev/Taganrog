@@ -15,7 +15,7 @@
         v-for="place in placesData"
         :key="place.id"
         :linkName="store.userData.admin ? 'admin-place' : 'place'"
-        :img="store.URL + place.avatar"
+        :img="store.URL + place.image[0]"
         :name="place.name"
         :isFavorite="place.isFavorite"
         :rating="place.score"
@@ -42,6 +42,10 @@ const placesData = ref([])
 
 if (route.params.id != 'favorite') {
   getTypePlaces(route.params.id).then((res) => {
+    res.data.places.forEach((element) => {
+      element.image = JSON.parse(element.image)
+    })
+
     placesData.value = res.data.places
     if (localStorage.getItem('Token') != null) {
       getUser().then((res) => {

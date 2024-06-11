@@ -34,6 +34,9 @@ export default function places() {
   function addImage(image, placeId) {
     return axios.post(api + 'place/upload/image', { image, placeId }, paramsImg)
   }
+  function delImage(file, placeId){
+    return axios.post(api + 'place/delete/image', { file, placeId }, params)
+  }
 
   return {
     getPlaces,
@@ -43,6 +46,7 @@ export default function places() {
     placeCreate,
     placeEdit,
     addType,
-    addImage
+    addImage,
+    delImage
   }
 }
